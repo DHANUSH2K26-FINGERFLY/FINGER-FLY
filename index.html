@@ -127,10 +127,10 @@
     <div id="nameScreen">
       <span class="name-icon">🎓</span>
       <p class="name-title">IDENTIFY YOURSELF</p>
-      <p class="name-sub">ENTER YOUR FULL NAME WITH INITIAL TO PROCEED</p>
+      <p class="name-sub">ENTER YOUR FULL NAME TO PROCEED</p>
       <div class="name-input-wrap">
-        <label>FULL NAME WITH INITIAL (e.g. A. DHANUSH KUMAR)</label>
-        <input type="text" id="studentName" placeholder="e.g. A. DHANUSH KUMAR" autocomplete="off" spellcheck="false">
+        <label>FULL NAME(e.g. A.KARTHIK)</label>
+        <input type="text" id="studentName" placeholder="e.g. A.KARTHIK" autocomplete="off" spellcheck="false">
       </div>
       <div id="nameError"></div>
       <button class="btn btn-start" onclick="submitName()">PROCEED →</button>
@@ -162,10 +162,10 @@
     <!-- LEVEL 1 -->
     <div id="round1" class="hidden">
       <h2><span class="badge">LVL 01</span> SPEED TYPING</h2>
-      <div class="level-hud"><span>TIME REMAINING</span><span class="timer-val" id="timer1">2:00</span></div>
+      <div class="level-hud"><span>TIME REMAINING</span><span class="timer-val" id="timer1">3:00</span></div>
       <div class="timer-bar-wrap"><div class="timer-bar" id="bar1" style="width:100%"></div></div>
       <p class="hint">// Type the passage below exactly. No copy-paste allowed.</p>
-      <div class="code-block"><span class="label">TARGET</span>Programming requires logical thinking, debugging skills and the ability to write efficient algorithms to solve real world problems.</div>
+      <div class="code-block"><span class="label">TARGET</span>In computer science, precision matters. If a = 4 and b = 2, then a² + b² = 20, but a × b = 8. Programmers must analyze algorithms, optimize performance, and avoid unpredictable errors while designing efficient systems.</div>
       <textarea id="typing1" placeholder="Start typing here..." autocomplete="off" spellcheck="false"></textarea>
       <button class="btn" onclick="checkRound1()">SUBMIT →</button>
     </div>
@@ -185,7 +185,7 @@
     <!-- LEVEL 3 -->
     <div id="round3" class="hidden">
       <h2><span class="badge">LVL 03</span> BUG FIX</h2>
-      <div class="level-hud"><span>TIME REMAINING</span><span class="timer-val" id="timer3">2:00</span></div>
+      <div class="level-hud"><span>TIME REMAINING</span><span class="timer-val" id="timer3">4:00</span></div>
       <div class="timer-bar-wrap"><div class="timer-bar" id="bar3" style="width:100%"></div></div>
       <p class="hint">// The code below has 4 bugs. Fix them all and type the corrected version.</p>
       <div class="code-block"><span class="label">BUGGY CODE</span>int x = 10
@@ -202,7 +202,7 @@ System.out.println(sum)</div>
     <!-- LEVEL 4 -->
     <div id="round4" class="hidden">
       <h2><span class="badge">LVL 04</span> CODE COMPLETE</h2>
-      <div class="level-hud"><span>TIME REMAINING</span><span class="timer-val" id="timer4">2:00</span></div>
+      <div class="level-hud"><span>TIME REMAINING</span><span class="timer-val" id="timer4">4:00</span></div>
       <div class="timer-bar-wrap"><div class="timer-bar" id="bar4" style="width:100%"></div></div>
       <p class="hint">// Fill in all 3 blanks ( ___ ). Enter answers separated by commas.</p>
       <div class="code-block"><span class="label">INCOMPLETE</span>public class Hello {
@@ -258,11 +258,11 @@ function submitName(){
   const raw = document.getElementById('studentName').value.trim();
   const errEl = document.getElementById('nameError');
 
-  if(!raw){ errEl.textContent='⚠ Please enter your full name with initial.'; return; }
+  if(!raw){ errEl.textContent='⚠ Please enter your full name.'; return; }
 
   // Must have at least 2 words and contain a period (initial check)
   const words = raw.split(/\s+/);
-  if(words.length < 2 || !raw.includes('.')){ errEl.textContent='⚠ Format: Initial. Firstname Lastname (e.g. A. Dhanush Kumar)'; return; }
+  if(words.length < 2 || !raw.includes('.')){ errEl.textContent='⚠ Format: Initial. Firstname Lastname (e.g. A.KARTHIK)'; return; }
 
   const normalizedName = raw.toUpperCase();
 
@@ -328,7 +328,7 @@ function startGame(){
 }
 
 // ── LEVEL 1 ───────────────────────────────────────────────
-const para="Programming requires logical thinking, debugging skills and the ability to write efficient algorithms to solve real world problems.";
+const para="const para="In computer science, precision matters. If a = 4 and b = 2, then a² + b² = 20, but a × b = 8. Programmers must analyze algorithms, optimize performance, and avoid unpredictable errors while designing efficient systems.";";
 function normText(s){ return s.replace(/[\r\n]+/g,' ').replace(/\s+/g,' ').trim().toLowerCase(); }
 function checkRound1(){
   if(gameOver) return;
@@ -409,6 +409,7 @@ document.getElementById('rainInput').addEventListener('keydown',function(e){
     const typed=this.value.trim().toLowerCase();
     for(let i=0;i<activeWords.length;i++){
       if(activeWords[i].word===typed){
+            new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg").play();
         activeWords[i].div.classList.add('matched');
         const cap=activeWords[i]; setTimeout(()=>{ if(cap.div.parentNode) cap.div.remove(); },350);
         activeWords.splice(i,1); rainScore++; document.getElementById('rainScore').textContent=rainScore; break;
