@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FINGER FLY — Levels 1 & 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,::before,::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#04080d;--card:#0a1420;--card2:#0e1d2e;
+  --cyan:#00eeff;--orange:#ff6b35;--green:#00ff88;--red:#ff2d55;
+  --text:#cce8ff;--dim:#587a9a;--border:rgba(0,238,255,0.15);
+  --gcyan:0 0 22px rgba(0,238,255,0.4);
+}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,238,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,238,255,0.018) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
+#space-canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:20px 20px 60px;}
+
+/* HEADER */
+.hdr{text-align:center;padding:34px 0 20px;}
+.hdr .tag{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:7px;color:var(--orange);text-transform:uppercase;margin-bottom:10px;display:block;}
+.hdr h1{font-family:'Orbitron',monospace;font-size:clamp(2.6rem,9vw,5rem);font-weight:900;letter-spacing:10px;line-height:1;background:linear-gradient(130deg,var(--cyan) 0%,#ffffff 45%,var(--orange) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 26px rgba(0,238,255,.5));}
+.hdr .sub{margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:5px;color:var(--dim);text-transform:uppercase;}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--cyan),var(--orange),transparent);opacity:.45;margin:6px 0 26px;}
+
+.screen{display:none;}.screen.active{display:block;animation:fin .3s ease;}
+@keyframes fin{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* SCARD */
+.scard{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:38px 32px 32px;text-align:center;position:relative;}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--orange));border-radius:6px 6px 0 0;}
+.scard h2{font-family:'Orbitron',monospace;font-size:1rem;letter-spacing:5px;color:var(--cyan);margin-bottom:26px;text-transform:uppercase;}
+
+.lv-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;text-align:left;}
+@media(max-width:520px){.lv-grid{grid-template-columns:1fr;}}
+.lv-box{background:var(--card2);border-radius:4px;padding:20px 16px;border-top:2px solid transparent;}
+.lv-box.b1{border-top-color:var(--cyan);}.lv-box.b2{border-top-color:var(--green);}
+.lv-box .num{font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;line-height:1;opacity:.22;}
+.lv-box.b1 .num{color:var(--cyan);}.lv-box.b2 .num{color:var(--green);}
+.lv-box .ttl{font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:3px;text-transform:uppercase;margin:8px 0 5px;}
+.lv-box.b1 .ttl{color:var(--cyan);}.lv-box.b2 .ttl{color:var(--green);}
+.lv-box .dsc{font-size:13px;color:var(--text);line-height:1.55;}
+
+.rules-row{display:flex;gap:12px;margin-bottom:26px;flex-wrap:wrap;}
+.rpill{flex:1;min-width:150px;background:rgba(255,45,85,.06);border:1px solid rgba(255,45,85,.22);border-radius:4px;padding:11px 13px;font-size:13px;color:var(--text);line-height:1.5;}
+.rpill strong{color:var(--red);font-size:11px;letter-spacing:1px;display:block;margin-bottom:2px;}
+
+.btn{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;padding:13px 36px;border:none;border-radius:2px;cursor:pointer;transition:all .18s;}
+.btn-c{background:linear-gradient(135deg,var(--cyan),#0077ff);color:#000;font-weight:700;box-shadow:var(--gcyan);}
+.btn-c:hover{transform:translateY(-2px);box-shadow:0 0 34px rgba(0,238,255,.65);}
+.btn-c:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:var(--gcyan);}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+.badge{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:4px;padding:6px 14px;border-radius:2px;text-transform:uppercase;}
+.badge.b1{border:1px solid var(--cyan);color:var(--cyan);background:rgba(0,238,255,.07);}
+.badge.b2{border:1px solid var(--green);color:var(--green);background:rgba(0,255,136,.07);}
+.tmr-wrap{text-align:right;}
+.tmr-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;}
+.tmr{font-family:'Orbitron',monospace;font-size:2rem;font-weight:700;color:var(--green);text-shadow:0 0 16px rgba(0,255,136,.45);line-height:1.1;}
+.tmr.warn{color:var(--orange);text-shadow:0 0 16px rgba(255,107,53,.5);}
+.tmr.crit{color:var(--red);text-shadow:0 0 16px rgba(255,45,85,.5);animation:blk .5s infinite;}
+@keyframes blk{50%{opacity:.3;}}
+
+.pbar-w{height:2px;background:var(--card2);margin-bottom:14px;border-radius:2px;overflow:hidden;}
+.pbar{height:100%;background:linear-gradient(90deg,var(--cyan),var(--orange));border-radius:2px;transition:width .25s;}
+
+.stats{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.sc{flex:1;min-width:90px;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:8px 12px;text-align:center;}
+.sc .v{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:700;color:var(--cyan);display:block;}
+.sc .l{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);display:block;margin-top:1px;}
+
+/* PARA BOX */
+.para-box{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px 22px;margin-bottom:14px;user-select:none;-webkit-user-select:none;}
+.para-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--dim);margin-bottom:12px;display:block;}
+#para1-chars{font-family:'Share Tech Mono',monospace;font-size:15px;line-height:2;word-break:break-word;white-space:pre-wrap;}
+.ch{color:#5a8aaa;}.ch.typed{color:var(--cyan);}.ch.cur{color:#fff;border-bottom:2px solid var(--cyan);background:rgba(0,238,255,.12);}
+
+.ta-w{margin-bottom:12px;}
+.ta-w textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:16px 18px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:14px;line-height:1.8;resize:none;outline:none;min-height:96px;caret-color:var(--cyan);transition:border-color .2s;}
+.ta-w textarea:focus{border-color:var(--cyan);}
+
+.btn-row{display:flex;justify-content:flex-end;margin-top:4px;}
+
+/* PASS SCREEN */
+.pass-w{text-align:center;padding:54px 20px;}
+.pass-ico{font-size:4.5rem;display:block;margin-bottom:16px;filter:drop-shadow(0 0 18px rgba(0,255,136,.5));}
+.pass-w h2{font-family:'Orbitron',monospace;font-size:1.4rem;letter-spacing:5px;color:var(--green);margin-bottom:10px;}
+.pass-w p{color:var(--dim);font-size:15px;margin-bottom:6px;}
+.mstats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:14px 0 26px;}
+.ms{background:var(--card2);border:1px solid rgba(0,238,255,.1);border-radius:4px;padding:7px 13px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--dim);}
+.ms span{color:var(--cyan);}
+
+/* DQ */
+.dq-w{text-align:center;padding:58px 20px;}
+.dq-ico{font-size:5rem;display:block;margin-bottom:14px;}
+.dq-w h2{font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;letter-spacing:6px;color:var(--red);text-transform:uppercase;margin-bottom:10px;filter:drop-shadow(0 0 18px rgba(255,45,85,.5));}
+.dq-w p{color:var(--dim);font-size:15px;line-height:1.7;max-width:480px;margin:0 auto 26px;}
+
+/* RESULTS */
+.res-title{font-family:'Orbitron',monospace;font-size:clamp(1.1rem,4vw,1.8rem);font-weight:900;letter-spacing:6px;text-align:center;background:linear-gradient(130deg,var(--cyan),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:22px;filter:drop-shadow(0 0 16px rgba(0,238,255,.3));}
+.total-box{background:var(--card2);border:1px solid var(--cyan);border-radius:6px;padding:24px;text-align:center;margin-bottom:18px;box-shadow:var(--gcyan);}
+.total-box .bt{font-family:'Orbitron',monospace;font-size:clamp(2.8rem,9vw,4.8rem);font-weight:900;color:var(--cyan);display:block;filter:drop-shadow(0 0 22px rgba(0,238,255,.5));}
+.total-box .bl{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:var(--dim);text-transform:uppercase;margin-top:6px;display:block;}
+.rcard{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:22px;margin-bottom:14px;position:relative;}
+.rcard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:6px 6px 0 0;}
+.rcard.r1::after{background:var(--cyan);}.rcard.r2::after{background:var(--green);}
+.rcard h3{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:4px;color:var(--dim);text-transform:uppercase;margin-bottom:16px;}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;}
+.ri{text-align:center;}
+.ri .rv{font-family:'Orbitron',monospace;font-size:2.1rem;font-weight:900;display:block;line-height:1;}
+.ri .rl{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-top:4px;display:block;}
+.ag{color:var(--green)!important;}.ao{color:var(--orange)!important;}.ar{color:var(--red)!important;}.ac{color:var(--cyan)!important;}
+
+/* FIELDS */
+.field-wrap{text-align:left;margin-bottom:18px;}
+.field-lbl{display:block;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--dim);margin-bottom:8px;}
+.field-inp{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:13px 16px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:14px;outline:none;transition:border-color .2s;caret-color:var(--cyan);}
+.field-inp:focus{border-color:var(--cyan);}.field-inp::placeholder{color:var(--dim);}
+
+/* RAIN */
+.rain-arena{position:relative;width:100%;height:340px;background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;user-select:none;-webkit-user-select:none;}
+.deadline{position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),#ff6b35,var(--red));box-shadow:0 0 12px var(--red);z-index:5;}
+.deadline-lbl{position:absolute;bottom:6px;right:10px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--red);opacity:.7;z-index:6;}
+.rain-word{position:absolute;font-family:'Share Tech Mono',monospace;font-size:15px;padding:5px 11px;border-radius:3px;border:1px solid rgba(0,238,255,.2);background:rgba(10,20,32,.85);white-space:nowrap;z-index:4;pointer-events:none;}
+.rain-word .rw-letter{color:var(--dim);}.rain-word .rw-typed{color:var(--cyan);}
+.rain-word.targeted{border-color:rgba(0,238,255,.6);background:rgba(0,238,255,.07);box-shadow:0 0 10px rgba(0,238,255,.2);}
+.rain-word.wrong-flash{border-color:var(--red)!important;background:rgba(255,45,85,.15)!important;box-shadow:0 0 14px rgba(255,45,85,.5)!important;animation:wrongFlash .5s ease forwards;}
+@keyframes wrongFlash{0%{opacity:1;}40%{opacity:.3;}70%{opacity:.9;}100%{opacity:0;}}
+
+.rain-input-row{display:flex;gap:10px;align-items:center;margin-bottom:12px;}
+#rain-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:12px 16px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:15px;outline:none;caret-color:var(--cyan);transition:border-color .2s;}
+#rain-input:focus{border-color:var(--cyan);}#rain-input::placeholder{color:var(--dim);}
+
+.rain-stats-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.rain-stat{flex:1;min-width:100px;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:8px 12px;text-align:center;}
+.rain-stat .rv2{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:700;display:block;}
+.rain-stat .rl2{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);display:block;margin-top:1px;}
+
+/* SAVING OVERLAY */
+.saving-overlay{position:fixed;inset:0;background:rgba(4,8,13,.88);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;backdrop-filter:blur(4px);}
+.saving-spinner{width:48px;height:48px;border:3px solid rgba(0,238,255,.2);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.saving-txt{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:4px;color:var(--cyan);text-transform:uppercase;}
+
+/* CHECKING OVERLAY */
+.check-overlay{display:none;position:absolute;inset:0;background:rgba(4,8,13,.7);z-index:10;border-radius:6px;align-items:center;justify-content:center;gap:12px;flex-direction:column;backdrop-filter:blur(3px);}
+.check-overlay.show{display:flex;}
+.check-spin{width:32px;height:32px;border:2px solid rgba(0,238,255,.2);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite;}
+.check-txt{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--cyan);}
+
+/* NO ATTEMPT */
+.dq-w.noattempt-w{padding:58px 20px;}
+</style>
+</head>
+<body>
+<canvas id="space-canvas"></canvas>
+
+<!-- SAVING OVERLAY -->
+<div class="saving-overlay" id="saving-overlay" style="display:none;">
+  <div class="saving-spinner"></div>
+  <div class="saving-txt">Saving your results…</div>
+</div>
+
+<div class="wrap">
+  <div class="hdr">
+    <span class="tag">Technical Fest — Typing Challenge</span>
+    <h1>FINGER FLY</h1>
+    <div class="sub">Round 1 of 2 · Speed Type &amp; Word Rain</div>
+  </div>
+  <div class="divider"></div>
+
+  <!-- DETAILS -->
+  <div class="screen active" id="screen-details">
+    <div class="scard" style="position:relative;">
+      <div class="check-overlay" id="check-overlay">
+        <div class="check-spin"></div>
+        <div class="check-txt">Checking name…</div>
+      </div>
+      <h2>Participant Registration</h2>
+      <p style="color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;margin-bottom:28px;">Enter your details to begin. One attempt per participant.</p>
+      <div class="field-wrap">
+        <label class="field-lbl">Full Name <span style="color:var(--dim);font-size:9px;letter-spacing:2px;">(used for certificates)</span></label>
+        <input type="text" id="inp-name" class="field-inp" placeholder="Enter your full name" autocomplete="off" spellcheck="false"/>
+      </div>
+      <div class="field-wrap">
+        <label class="field-lbl">College Name</label>
+        <input type="text" id="inp-clg" class="field-inp" placeholder="Enter your college name" autocomplete="off" spellcheck="false"/>
+      </div>
+      <div class="field-wrap">
+        <label class="field-lbl">Branch Name</label>
+        <input type="text" id="inp-branch" class="field-inp" placeholder="Enter your branch / department" autocomplete="off" spellcheck="false"/>
+      </div>
+      <div id="details-err" style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:12px;min-height:18px;margin-bottom:16px;"></div>
+      <button class="btn btn-c" id="proceed-btn" onclick="submitDetails()">Proceed to Challenge</button>
+    </div>
+  </div>
+
+  <!-- NO ATTEMPT -->
+  <div class="screen" id="screen-noattempt">
+    <div class="dq-w">
+      <span class="dq-ico">🚫</span>
+      <h2 style="color:var(--red);font-family:'Orbitron',monospace;font-size:1.6rem;letter-spacing:5px;margin-bottom:14px;">Already Attempted</h2>
+      <p id="noattempt-msg" style="color:var(--dim);font-size:15px;line-height:1.7;max-width:480px;margin:0 auto;">You have already attempted this challenge.</p>
+    </div>
+  </div>
+
+  <!-- START -->
+  <div class="screen" id="screen-start">
+    <div class="scard">
+      <h2>Instructions</h2>
+      <div class="lv-grid">
+        <div class="lv-box b1">
+          <div class="num">01</div>
+          <div class="ttl">Speed Type</div>
+          <div class="dsc">A paragraph is shown on screen. Type it exactly within the time limit. Zero errors allowed.</div>
+        </div>
+        <div class="lv-box b2">
+          <div class="num">02</div>
+          <div class="ttl">Word Rain</div>
+          <div class="dsc">Tech words fall from the sky. Type them before they hit the deadline. More than 3 wrong = disqualified.</div>
+        </div>
+      </div>
+      <div class="rules-row">
+        <div class="rpill"><strong>⚠ No Copy-Paste</strong>Paste is completely blocked on both levels.</div>
+        <div class="rpill"><strong>⚠ Zero Error Policy</strong>Level 1 requires 100% accuracy — even one wrong character = disqualification.</div>
+        <div class="rpill"><strong>⚠ Word Rain Rules</strong>More than 3 wrong words = disqualified.</div>
+        <div class="rpill"><strong>⚠ One Attempt Only</strong>You get exactly one attempt. No going back or restarting.</div>
+        <div class="rpill"><strong>⚠ Timer Rules</strong>Both timers start on your first keystroke.</div>
+        <div class="rpill"><strong>⚠ Word Rain Targeting</strong>Type the first letter of any falling word — it will auto-lock. Speed increases after 30 seconds.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(0,238,255,.04);border:1px solid rgba(0,238,255,.15);border-radius:4px;padding:14px 18px;margin-bottom:22px;cursor:pointer;" onclick="toggleCheck()">
+        <div id="chk-box" style="width:20px;height:20px;border:2px solid var(--dim);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;"></div>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--dim);letter-spacing:2px;">I have read all the instructions carefully.</span>
+      </div>
+      <button class="btn btn-c" id="start-btn" onclick="startL1()" style="opacity:.35;cursor:not-allowed;pointer-events:none;">Start Challenge</button>
+    </div>
+  </div>
+
+  <!-- LEVEL 1 -->
+  <div class="screen" id="screen-l1">
+    <div class="topbar">
+      <div class="badge b1">⚡ Level 01 — Speed Type</div>
+      <div class="tmr-wrap">
+        <div class="tmr-lbl">Time Left</div>
+        <div class="tmr" id="tmr1">04:00</div>
+      </div>
+    </div>
+    <div class="pbar-w"><div class="pbar" id="pb1" style="width:0%"></div></div>
+    <div class="stats">
+      <div class="sc"><span class="v" id="wpm1">0</span><span class="l">WPM</span></div>
+      <div class="sc"><span class="v" id="chr1">0</span><span class="l">Chars Typed</span></div>
+      <div class="sc"><span class="v" id="pct1">0%</span><span class="l">Progress</span></div>
+    </div>
+    <div class="para-box">
+      <span class="para-lbl">// Read carefully — type character by character</span>
+      <div id="para1-chars"></div>
+    </div>
+    <div class="ta-w">
+      <textarea id="inp1" rows="3" placeholder="Click here and start typing…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-c" onclick="submitL1()">Submit Level 1</button>
+    </div>
+  </div>
+
+  <!-- PASS L1 -->
+  <div class="screen" id="screen-pass">
+    <div class="pass-w">
+      <span class="pass-ico">✓</span>
+      <h2>Level 1 — Cleared!</h2>
+      <p>Perfect accuracy. Proceeding to the Word Rain challenge.</p>
+      <div class="mstats" id="pass-stats"></div>
+      <button class="btn btn-c" onclick="startL2()">Enter Level 2</button>
+    </div>
+  </div>
+
+  <!-- DQ -->
+  <div class="screen" id="screen-dq">
+    <div class="dq-w">
+      <span class="dq-ico">✗</span>
+      <h2>Disqualified</h2>
+      <p id="dq-msg">Errors found. Your attempt has ended.</p>
+    </div>
+  </div>
+
+  <!-- LEVEL 2 -->
+  <div class="screen" id="screen-l2">
+    <div class="topbar">
+      <div class="badge b2">🌧 Level 02 — Word Rain</div>
+      <div class="tmr-wrap">
+        <div class="tmr-lbl">Time Left</div>
+        <div class="tmr" id="tmr2" style="color:var(--green);text-shadow:0 0 16px rgba(0,255,136,.45)">01:00</div>
+      </div>
+    </div>
+    <div class="pbar-w"><div class="pbar" id="pb2" style="width:100%;background:linear-gradient(90deg,var(--green),var(--cyan))"></div></div>
+    <div class="rain-stats-row">
+      <div class="rain-stat"><span class="rv2 ag" id="r2-correct">0</span><span class="rl2">Correct</span></div>
+      <div class="rain-stat"><span class="rv2 ar" id="r2-wrong">0</span><span class="rl2">Wrong</span></div>
+      <div class="rain-stat"><span class="rv2 ac" id="r2-active">0</span><span class="rl2">Active Words</span></div>
+      <div class="rain-stat"><span class="rv2" id="r2-status" style="color:var(--green);font-size:.95rem">READY</span><span class="rl2">Status</span></div>
+    </div>
+    <div class="rain-arena" id="rain-arena">
+      <div class="deadline"></div>
+      <div class="deadline-lbl">DEADLINE</div>
+    </div>
+    <div class="rain-input-row">
+      <input type="text" id="rain-input" placeholder="Start typing to begin — words auto-lock on first letter" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+    </div>
+    <p style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:2px;text-align:center;margin-bottom:8px;">
+      Timer starts on first keystroke · Max 3 wrong words · Speed increases after 30s
+    </p>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="screen" id="screen-results">
+    <div class="res-title">Levels 1 &amp; 2 — Complete</div>
+    <div id="res-participant" style="text-align:center;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--dim);letter-spacing:3px;margin-bottom:18px;"></div>
+    <div class="total-box">
+      <span class="bt" id="r-total">--:--</span>
+      <span class="bl">Total Time — Both Levels Combined</span>
+    </div>
+    <div class="rcard r1">
+      <h3>Level 01 — Speed Type</h3>
+      <div class="rgrid">
+        <div class="ri"><span class="rv ac" id="r1t">--</span><span class="rl">Time Taken</span></div>
+        <div class="ri"><span class="rv ag" id="r1w">--</span><span class="rl">WPM</span></div>
+        <div class="ri"><span class="rv ag" id="r1a">--</span><span class="rl">Accuracy</span></div>
+        <div class="ri"><span class="rv ac" id="r1c">--</span><span class="rl">Characters</span></div>
+      </div>
+    </div>
+    <div class="rcard r2">
+      <h3>Level 02 — Word Rain</h3>
+      <div class="rgrid">
+        <div class="ri"><span class="rv" id="r2t" style="color:var(--green)">--</span><span class="rl">Time Taken</span></div>
+        <div class="ri"><span class="rv ag" id="r2w">--</span><span class="rl">Correct Words</span></div>
+        <div class="ri"><span class="rv ar" id="r2x">--</span><span class="rl">Wrong Words</span></div>
+        <div class="ri"><span class="rv" id="r2acc" style="color:var(--green)">--</span><span class="rl">Accuracy</span></div>
+      </div>
+    </div>
+    <div id="save-status" style="text-align:center;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:2px;margin-top:10px;min-height:20px;"></div>
+  </div>
+
+</div><!-- end .wrap -->
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  ⚠️  IMPORTANT: Paste your Google Apps Script Web App URL below
+//     It looks like: https://script.google.com/macros/s/XXXX.../exec
+// ══════════════════════════════════════════════════════════════
+const APPS_SCRIPT_URL = "YOUR_APPS_SCRIPT_URL_HERE";
+
+/* ══ CONFIG ══ */
+const L1_PARA = "Technology is an essential part of modern life and plays a major role in improving the way people live and work. It helps us communicate faster, access information easily, and solve complex problems efficiently. Innovations such as artificial intelligence, cloud computing, and mobile applications are transforming industries and creating new opportunities. In education, technology enables online learning and access to vast knowledge resources. It also improves productivity in businesses through automation and data analysis. As technology continues to grow, it will shape the future and bring new advancements to society.";
+const L1_SECS = 4 * 60;
+const L2_SECS = 1 * 60;
+
+const TECH_WORDS_POOL = [
+  "algorithm","binary","compiler","database","encryption",
+  "firewall","github","hashtag","interface","javascript",
+  "kernel","linux","metadata","network","overflow",
+  "protocol","quantum","runtime","syntax","terminal",
+  "ubuntu","variable","webpack","xcode","yaml",
+  "backend","caching","docker","ethernet","frontend",
+  "gigabyte","hardware","integer","jupyter","keyboard",
+  "latency","machine","nodejs","opcode","python",
+  "query","router","server","token","unicode",
+  "virtual","webhook","xml","zeroday","api"
+];
+
+const WR_MAX_ACTIVE      = 3;
+const WR_SPAWN_INTERVAL  = 2800;
+const WR_SPAWN_FAST      = 2100;
+const WR_FALL_SPEED_NORM = 0.42;
+const WR_FALL_SPEED_FAST = 0.62;
+const WR_MAX_WRONG       = 3;
+
+/* ══ STATE ══ */
+let participant = {name:'',clg:'',branch:''};
+let S = mkState();
+function mkState(){
+  return {
+    l1Going:false,l1Start:null,l1End:null,l1Timer:null,l1Left:L1_SECS,r1:null,
+    l2Going:false,l2Start:null,l2End:null,l2Timer:null,l2Left:L2_SECS,
+    l2WordPool:[],l2ActiveWords:[],l2SpawnTimer:null,l2AnimFrame:null,
+    l2Correct:0,l2Wrong:0,l2Targeted:null,l2Typed:'',r2:null
+  };
+}
+
+function $id(id){return document.getElementById(id);}
+function fmt(s){s=Math.max(0,s);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0');}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$id('screen-'+id).classList.add('active');}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ══ GOOGLE SHEETS ══ */
+async function checkNameInSheet(name){
+  if(!APPS_SCRIPT_URL||APPS_SCRIPT_URL==='YOUR_APPS_SCRIPT_URL_HERE') return {exists:false};
+  try{
+    const url=`${APPS_SCRIPT_URL}?action=check&name=${encodeURIComponent(name)}`;
+    const res=await fetch(url);
+    return await res.json();
+  }catch(e){
+    console.warn('Sheet check failed:',e);
+    return {exists:false};
+  }
+}
+
+async function saveToSheet(data){
+  if(!APPS_SCRIPT_URL||APPS_SCRIPT_URL==='https://script.google.com/macros/s/AKfycbxqJCTolujH6WZUIURpQ-rH7ys5Li4bK-ZDluC31j7ncTGhkpd7TZR6GfdEYeAUGh-teQ/exec'){
+    console.warn('No Apps Script URL configured — data not saved.');
+    return false;
+  }
+  try{
+    const params=new URLSearchParams({action:'save',...data});
+    const url=`${APPS_SCRIPT_URL}?${params.toString()}`;
+    const res=await fetch(url);
+    const json=await res.json();
+    return json.success===true;
+  }catch(e){
+    console.warn('Sheet save failed:',e);
+    return false;
+  }
+}
+
+/* ══ REGISTRATION ══ */
+let checked1=false;
+function toggleCheck(){
+  checked1=!checked1;
+  const box=$id('chk-box'),btn=$id('start-btn');
+  if(checked1){
+    box.style.border='2px solid var(--cyan)';box.style.background='rgba(0,238,255,.15)';
+    box.innerHTML='<svg width="12" height="10" viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#00eeff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    btn.style.opacity='1';btn.style.cursor='pointer';btn.style.pointerEvents='auto';
+  }else{
+    box.style.border='2px solid var(--dim)';box.style.background='transparent';box.innerHTML='';
+    btn.style.opacity='.35';btn.style.cursor='not-allowed';btn.style.pointerEvents='none';
+  }
+}
+
+async function submitDetails(){
+  const name=$id('inp-name').value.trim();
+  const clg=$id('inp-clg').value.trim();
+  const branch=$id('inp-branch').value.trim();
+  const err=$id('details-err');
+
+  if(!name){err.textContent='⚠ Please enter your full name.';return;}
+  if(name.split(/\s+/).filter(Boolean).length<2){err.textContent='⚠ Please enter your full name (first and last name).';return;}
+  if(!clg){err.textContent='⚠ Please enter your college name.';return;}
+  if(!branch){err.textContent='⚠ Please enter your branch / department.';return;}
+  err.textContent='';
+
+  // Disable button during check
+  const btn=$id('proceed-btn');
+  btn.disabled=true;btn.textContent='Checking…';
+  $id('check-overlay').classList.add('show');
+
+  // Check Google Sheet for duplicate name
+  const result=await checkNameInSheet(name);
+
+  $id('check-overlay').classList.remove('show');
+  btn.disabled=false;btn.textContent='Proceed to Challenge';
+
+  if(result.exists){
+    $id('noattempt-msg').textContent=`"${result.name || name}" has already completed an attempt. Only one attempt is allowed per participant (name check is case-insensitive).`;
+    show('noattempt');
+    return;
+  }
+
+  participant={name,clg,branch};
+  show('start');
+}
+
+/* ══ LEVEL 1 ══ */
+function startL1(){
+  S=mkState();
+  $id('para1-chars').innerHTML=L1_PARA.split('').map((c,i)=>{
+    const d=c===' '?'&nbsp;':c.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    return `<span class="ch" id="k${i}">${d}</span>`;
+  }).join('');
+  $id('tmr1').textContent=fmt(L1_SECS);$id('tmr1').className='tmr';
+  $id('pb1').style.width='0%';$id('wpm1').textContent='0';$id('chr1').textContent='0';$id('pct1').textContent='0%';
+  show('l1');
+  const old=$id('inp1');const ta=old.cloneNode(false);ta.value='';ta.id='inp1';old.parentNode.replaceChild(ta,old);
+  ta.addEventListener('input',onL1);
+  ta.addEventListener('paste',e=>e.preventDefault());ta.addEventListener('copy',e=>e.preventDefault());
+  ta.addEventListener('cut',e=>e.preventDefault());ta.addEventListener('contextmenu',e=>e.preventDefault());
+  setTimeout(()=>ta.focus(),100);
+}
+function onL1(){
+  if(!S.l1Going){S.l1Going=true;S.l1Start=Date.now();tickL1();}
+  const typed=$id('inp1').value;
+  document.querySelectorAll('#para1-chars .ch').forEach((el,i)=>{
+    el.classList.remove('typed','cur');
+    if(i<typed.length)el.classList.add('typed');
+    else if(i===typed.length)el.classList.add('cur');
+  });
+  const mins=(Date.now()-S.l1Start)/60000;
+  const ws=typed.trim().split(/\s+/).filter(Boolean).length;
+  $id('wpm1').textContent=mins>0?Math.round(ws/mins):0;
+  $id('chr1').textContent=typed.length;
+  const pct=Math.min(100,Math.round(typed.length/L1_PARA.length*100));
+  $id('pct1').textContent=pct+'%';$id('pb1').style.width=pct+'%';
+}
+function tickL1(){
+  S.l1Left=L1_SECS;
+  S.l1Timer=setInterval(()=>{
+    S.l1Left--;const el=$id('tmr1');el.textContent=fmt(S.l1Left);el.className='tmr';
+    if(S.l1Left<=30)el.className+=' crit';else if(S.l1Left<=60)el.className+=' warn';
+    if(S.l1Left<=0){clearInterval(S.l1Timer);dq("Time's up! You must finish Level 1 within the time limit.");}
+  },1000);
+}
+function submitL1(){
+  if(!S.l1Going){alert('Start typing first!');return;}
+  clearInterval(S.l1Timer);S.l1End=Date.now();
+  const typed=$id('inp1').value;
+  if(typed!==L1_PARA){dq("Your submission does not match the paragraph exactly. Level 1 requires 100% accuracy.");return;}
+  const secs=(S.l1End-S.l1Start)/1000;
+  const wpm=Math.round(L1_PARA.trim().split(/\s+/).length/(secs/60));
+  S.r1={secs,wpm,acc:100,chars:L1_PARA.length};
+  $id('pass-stats').innerHTML=`<div class="ms">Time <span>${fmt(secs)}</span></div><div class="ms">WPM <span>${wpm}</span></div><div class="ms">Accuracy <span style="color:var(--green)">100%</span></div>`;
+  show('pass');
+}
+function dq(msg){
+  clearInterval(S.l1Timer);clearInterval(S.l2Timer);clearInterval(S.l2SpawnTimer);cancelAnimationFrame(S.l2AnimFrame);
+  $id('dq-msg').textContent=msg;show('dq');
+}
+
+/* ══ LEVEL 2 — WORD RAIN ══ */
+function startL2(){
+  S.l2Going=false;S.l2Start=null;S.l2End=null;S.l2Left=L2_SECS;
+  S.l2Correct=0;S.l2Wrong=0;S.l2Targeted=null;S.l2Typed='';S.l2ActiveWords=[];
+  S.l2WordPool=shuffle(TECH_WORDS_POOL);
+  $id('tmr2').textContent=fmt(L2_SECS);$id('tmr2').className='tmr';
+  $id('tmr2').style.cssText='color:var(--green);text-shadow:0 0 16px rgba(0,255,136,.45)';
+  $id('pb2').style.width='100%';
+  $id('r2-correct').textContent='0';$id('r2-wrong').textContent='0';$id('r2-active').textContent='0';
+  $id('r2-status').textContent='READY';$id('r2-status').style.color='var(--green)';
+  const arena=$id('rain-arena');arena.querySelectorAll('.rain-word').forEach(el=>el.remove());
+  const old=$id('rain-input');const ni=old.cloneNode(false);ni.value='';ni.id='rain-input';old.parentNode.replaceChild(ni,old);
+  ni.addEventListener('input',onRainInput);ni.addEventListener('keydown',onRainKeydown);
+  ni.addEventListener('paste',e=>e.preventDefault());ni.addEventListener('copy',e=>e.preventDefault());
+  ni.addEventListener('cut',e=>e.preventDefault());ni.addEventListener('contextmenu',e=>e.preventDefault());
+  show('l2');setTimeout(()=>ni.focus(),120);
+}
+function beginL2(){
+  if(S.l2Going)return;
+  S.l2Going=true;S.l2Start=Date.now();
+  spawnWord();
+  S.l2SpawnTimer=setInterval(()=>{if(S.l2ActiveWords.length<WR_MAX_ACTIVE&&S.l2WordPool.length>0)spawnWord();},WR_SPAWN_INTERVAL);
+  setTimeout(()=>{
+    clearInterval(S.l2SpawnTimer);
+    S.l2SpawnTimer=setInterval(()=>{if(S.l2ActiveWords.length<WR_MAX_ACTIVE&&S.l2WordPool.length>0)spawnWord();},WR_SPAWN_FAST);
+    $id('r2-status').textContent='FASTER!';$id('r2-status').style.color='var(--orange)';
+  },30000);
+  tickL2();rainLoop();
+}
+function spawnWord(){
+  if(!S.l2WordPool.length)return;if(S.l2ActiveWords.length>=WR_MAX_ACTIVE)return;
+  const word=S.l2WordPool.shift();const arena=$id('rain-arena');const aW=arena.clientWidth;
+  const WORD_W=word.length*10+24;const minX=10;const maxX=Math.max(minX,aW-WORD_W-10);
+  let x=minX+Math.random()*(maxX-minX);let tries=0;
+  while(tries<8){const overlap=S.l2ActiveWords.some(w=>{const wx=parseFloat(w.el.style.left);return Math.abs(wx-x)<WORD_W+8;});if(!overlap)break;x=minX+Math.random()*(maxX-minX);tries++;}
+  const el=document.createElement('div');el.className='rain-word';el.style.left=x+'px';el.style.top='-34px';
+  el.innerHTML=word.split('').map(c=>`<span class="rw-letter">${c}</span>`).join('');
+  $id('rain-arena').appendChild(el);
+  const obj={word,el,y:-34,typedCount:0,done:false,wrong:false};
+  S.l2ActiveWords.push(obj);updateActiveCount();retarget();
+}
+function rainLoop(){
+  if(!S.l2Going)return;
+  S.l2AnimFrame=requestAnimationFrame(rainLoop);
+  const arena=$id('rain-arena');const aH=arena.clientHeight;const deadline=aH-3;
+  const elapsed=(Date.now()-S.l2Start)/1000;const speed=elapsed>=30?WR_FALL_SPEED_FAST:WR_FALL_SPEED_NORM;
+  S.l2ActiveWords.forEach(w=>{
+    if(w.done)return;w.y+=speed;w.el.style.top=w.y+'px';
+    if(w.y+w.el.offsetHeight>=deadline){w.done=true;registerWrong(w,'MISSED');}
+  });
+  S.l2ActiveWords=S.l2ActiveWords.filter(w=>!(w.done&&!w.el.parentNode));
+  updateActiveCount();
+}
+function onRainInput(){
+  if(!S.l2Going)beginL2();
+  const val=$id('rain-input').value;S.l2Typed=val;
+  if(!S.l2Targeted||S.l2Targeted.done){S.l2Targeted=null;retarget();}
+  if(!S.l2Targeted)return;
+  const w=S.l2Targeted;const wrd=w.word;
+  for(let i=0;i<wrd.length;i++){
+    const span=w.el.children[i];
+    if(i<val.length){span.className=val[i]===wrd[i]?'rw-typed':'rw-letter';}
+    else{span.className='rw-letter';}
+  }
+  if(val.length>=wrd.length){
+    w.done=true;$id('rain-input').value='';S.l2Typed='';S.l2Targeted=null;
+    if(val===wrd){
+      S.l2Correct++;$id('r2-correct').textContent=S.l2Correct;
+      w.el.style.transition='opacity 0.25s';w.el.style.opacity='0';
+      setTimeout(()=>{if(w.el.parentNode)w.el.parentNode.removeChild(w.el);},260);
+    }else{registerWrong(w,'WRONG');}
+    retarget();
+  }
+}
+function onRainKeydown(e){if(e.key===' ')e.preventDefault();}
+function retarget(){
+  if(S.l2Targeted&&!S.l2Targeted.done)return;
+  S.l2Targeted=null;const val=(S.l2Typed||'').toLowerCase();
+  if(!val){S.l2ActiveWords.forEach(w=>{if(!w.done)w.el.classList.remove('targeted');});return;}
+  const match=S.l2ActiveWords.find(w=>!w.done&&w.word.startsWith(val));
+  if(match){S.l2Targeted=match;S.l2ActiveWords.forEach(w=>w.el.classList.remove('targeted'));match.el.classList.add('targeted');}
+  else{S.l2ActiveWords.forEach(w=>w.el.classList.remove('targeted'));}
+}
+function registerWrong(w,reason){
+  if(w._wrongRegistered)return;w._wrongRegistered=true;w.done=true;
+  S.l2Wrong++;$id('r2-wrong').textContent=S.l2Wrong;
+  w.el.classList.remove('targeted');w.el.classList.add('wrong-flash');
+  setTimeout(()=>{if(w.el.parentNode)w.el.parentNode.removeChild(w.el);},520);
+  if(S.l2Wrong>WR_MAX_WRONG){endL2Game();dq(`Too many wrong words! You missed or mistyped more than ${WR_MAX_WRONG} words.`);return;}
+  if(S.l2Targeted===w){S.l2Targeted=null;$id('rain-input').value='';S.l2Typed='';retarget();}
+}
+function updateActiveCount(){$id('r2-active').textContent=S.l2ActiveWords.filter(w=>!w.done).length;}
+function tickL2(){
+  S.l2Left=L2_SECS;
+  S.l2Timer=setInterval(()=>{
+    S.l2Left--;const el=$id('tmr2');el.textContent=fmt(S.l2Left);
+    const pct=(S.l2Left/L2_SECS)*100;$id('pb2').style.width=pct+'%';
+    el.style.cssText='';el.className='tmr';
+    if(S.l2Left<=10)el.className+=' crit';
+    else if(S.l2Left<=20)el.className='tmr warn';
+    else el.style.cssText='color:var(--green);text-shadow:0 0 16px rgba(0,255,136,.45)';
+    if(S.l2Left<=0){endL2Game();finishL2();}
+  },1000);
+}
+function endL2Game(){
+  clearInterval(S.l2Timer);clearInterval(S.l2SpawnTimer);
+  S.l2Going=false;S.l2End=Date.now();cancelAnimationFrame(S.l2AnimFrame);
+}
+function finishL2(){
+  const secs=S.l2Start?(S.l2End-S.l2Start)/1000:L2_SECS;
+  const total=S.l2Correct+S.l2Wrong;const acc=total>0?Math.round(S.l2Correct/total*100):100;
+  S.r2={secs,correct:S.l2Correct,wrong:S.l2Wrong,acc};
+  showResults();
+}
+
+/* ══ RESULTS + SAVE ══ */
+async function showResults(){
+  const r1=S.r1,r2=S.r2;const tot=r1.secs+r2.secs;
+  $id('r-total').textContent=fmt(tot);
+  $id('r1t').textContent=fmt(r1.secs);$id('r1w').textContent=r1.wpm;$id('r1a').textContent='100%';$id('r1c').textContent=r1.chars;
+  $id('r2t').textContent=fmt(r2.secs);$id('r2w').textContent=r2.correct;$id('r2x').textContent=r2.wrong;
+  $id('r2acc').textContent=r2.acc+'%';$id('r2acc').className='rv '+(r2.acc>=80?'ag':r2.acc>=50?'ao':'ar');
+  $id('res-participant').textContent=participant.name.toUpperCase()+' · '+participant.clg+' · '+participant.branch;
+  show('results');
+
+  // Show saving overlay
+  $id('saving-overlay').style.display='flex';
+  $id('save-status').textContent='';
+
+  const saved=await saveToSheet({
+    name:   participant.name,
+    clg:    participant.clg,
+    branch: participant.branch,
+    total:  fmt(tot)
+  });
+
+  $id('saving-overlay').style.display='none';
+
+  if(saved){
+    $id('save-status').innerHTML='<span style="color:var(--green)">✓ Results saved to Google Sheets</span>';
+  }else{
+    $id('save-status').innerHTML='<span style="color:var(--dim)">⚠ Could not save to sheet — contact organizer.</span>';
+  }
+}
+
+/* ══ SPACE BACKGROUND ══ */
+window.addEventListener('load',()=>{
+  $id('inp-name').addEventListener('keydown',e=>{if(e.key==='Enter')$id('inp-clg').focus();});
+  $id('inp-clg').addEventListener('keydown',e=>{if(e.key==='Enter')$id('inp-branch').focus();});
+  $id('inp-branch').addEventListener('keydown',e=>{if(e.key==='Enter')submitDetails();});
+  initSpace();
+});
+function initSpace(){
+  const canvas=$id('space-canvas');const ctx=canvas.getContext('2d');
+  function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  const STAR_COUNT=160;
+  const stars=Array.from({length:STAR_COUNT},()=>({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:Math.random()*1.4+0.3,base:Math.random(),phase:Math.random()*Math.PI*2,speed:0.4+Math.random()*0.8}));
+  function makeRocket(){
+    const side=Math.floor(Math.random()*4);let x,y,angle;const w=canvas.width,h=canvas.height;
+    if(side===0){x=Math.random()*w*0.7+w*0.1;y=h+40;angle=-(Math.PI/2)+(Math.random()-.5)*.5;}
+    else if(side===1){x=-40;y=Math.random()*h*.8+h*.1;angle=(Math.random()-.5)*.6;}
+    else if(side===2){x=w+40;y=Math.random()*h*.8+h*.1;angle=Math.PI+(Math.random()-.5)*.6;}
+    else{x=Math.random()*w*.4;y=h+40;angle=-Math.PI/2+.3+Math.random()*.3;}
+    return{x,y,angle,speed:0.6+Math.random()*1.0,scale:0.55+Math.random()*0.6,trail:[],opacity:0.55+Math.random()*0.35,color:Math.random()>.5?'#00eeff':'#ff6b35'};
+  }
+  let rockets=[];
+  setInterval(()=>{if(rockets.length<6)rockets.push(makeRocket());},2200);
+  setTimeout(()=>rockets.push(makeRocket()),300);setTimeout(()=>rockets.push(makeRocket()),1100);
+  function drawRocket(ctx,rx,ry,angle,scale,opacity,color){
+    ctx.save();ctx.translate(rx,ry);ctx.rotate(angle+Math.PI/2);ctx.scale(scale,scale);ctx.globalAlpha=opacity;
+    ctx.beginPath();ctx.moveTo(0,-18);ctx.bezierCurveTo(6,-10,6,2,5,10);ctx.lineTo(-5,10);ctx.bezierCurveTo(-6,2,-6,-10,0,-18);ctx.closePath();ctx.fillStyle=color;ctx.fill();
+    ctx.beginPath();ctx.arc(0,-6,3,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.85)';ctx.fill();
+    ctx.beginPath();ctx.moveTo(-5,6);ctx.lineTo(-11,14);ctx.lineTo(-5,10);ctx.closePath();ctx.fillStyle=color;ctx.fill();
+    ctx.beginPath();ctx.moveTo(5,6);ctx.lineTo(11,14);ctx.lineTo(5,10);ctx.closePath();ctx.fillStyle=color;ctx.fill();
+    ctx.beginPath();ctx.moveTo(-4,10);ctx.bezierCurveTo(-3,18+Math.random()*6,3,18+Math.random()*6,4,10);ctx.closePath();
+    const fg=ctx.createLinearGradient(0,10,0,22);fg.addColorStop(0,'rgba(255,180,0,0.9)');fg.addColorStop(1,'rgba(255,80,0,0)');ctx.fillStyle=fg;ctx.fill();
+    ctx.restore();
+  }
+  let t=0;
+  function frame(){
+    requestAnimationFrame(frame);ctx.clearRect(0,0,canvas.width,canvas.height);t+=0.016;
+    stars.forEach(s=>{
+      const opacity=0.2+s.base*0.5+Math.sin(t*s.speed+s.phase)*0.25;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(180,230,255,${Math.max(0,Math.min(1,opacity))})`;ctx.fill();
+      if(s.r>1.1&&Math.sin(t*s.speed+s.phase)>0.7){ctx.strokeStyle=`rgba(180,230,255,${opacity*.5})`;ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(s.x-s.r*3,s.y);ctx.lineTo(s.x+s.r*3,s.y);ctx.moveTo(s.x,s.y-s.r*3);ctx.lineTo(s.x,s.y+s.r*3);ctx.stroke();}
+    });
+    rockets=rockets.filter(r=>{
+      r.x+=Math.cos(r.angle)*r.speed*2;r.y+=Math.sin(r.angle)*r.speed*2;
+      r.trail.push({x:r.x,y:r.y});if(r.trail.length>28)r.trail.shift();
+      for(let i=1;i<r.trail.length;i++){const prog=i/r.trail.length;ctx.beginPath();ctx.moveTo(r.trail[i-1].x,r.trail[i-1].y);ctx.lineTo(r.trail[i].x,r.trail[i].y);ctx.globalAlpha=prog*r.opacity*0.35;ctx.strokeStyle=r.color;ctx.lineWidth=prog*2*r.scale;ctx.stroke();ctx.globalAlpha=1;}
+      drawRocket(ctx,r.x,r.y,r.angle,r.scale,r.opacity,r.color);
+      const m=120,w=canvas.width,h=canvas.height;return!(r.x<-m||r.x>w+m||r.y<-m||r.y>h+m);
+    });
+  }
+  frame();
+}
+</script>
+</body>
+</html>
